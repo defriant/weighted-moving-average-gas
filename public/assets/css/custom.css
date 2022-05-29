@@ -1,0 +1,101 @@
+.login-logo {
+    width: 150px;
+    margin-bottom: 1.5rem;
+}
+
+.img-responsive {
+    width: 60px;
+}
+
+.login-failed-message {
+    color: rgb(255, 0, 0);
+    font-size: 1.3rem;
+    float: left;
+    margin: .5rem 0 1rem 0;
+}
+
+.change-periode {
+    padding-left: .5rem !important;
+    padding-right: .5rem !important;
+    border-radius: 3px;
+}
+
+.change-periode.active {
+    background: #00AAFF !important;
+    color: #fff;
+}
+
+.loading {
+    background: rgb(219, 219, 219);
+    color: rgb(219, 219, 219);
+    padding-right: 10px;
+}
+
+.loader {
+    text-align: center;
+    padding: 5rem 0;
+}
+
+.loader4 {
+    width: 45px;
+    height: 45px;
+    display: inline-block;
+    padding: 0px;
+    border-radius: 100%;
+    border: 5px solid;
+    border-top-color: #00AAFF;
+    border-bottom-color: rgb(225, 225, 225);
+    border-left-color: #00AAFF;
+    border-right-color: rgb(225, 225, 225);
+    -webkit-animation: loader4 1s ease-in-out infinite;
+    animation: loader4 1s ease-in-out infinite;
+}
+
+@keyframes loader4 {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes loader4 {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+.btn-table-action {
+    border: none;
+    border-radius: 3px;
+    padding: .3rem .6rem;
+    color: #fff;
+    transition: .3s;
+}
+
+.btn-table-action.edit {
+    background: #ffaa00;
+}
+
+.date-picker {
+    background-color: transparent !important;
+}
+
+.text-note {
+    font-style: italic;
+    font-size: 13px;
+}
+
+.text-note:before {
+    content: "* ";
+}
+
+.text-note.red {
+    color: red;
+}
