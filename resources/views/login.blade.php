@@ -2,7 +2,7 @@
 <html lang="en" class="fullscreen-bg">
 
 <head>
-	<title>Login | Toko Sembako Bu Dito</title>
+	<title>Login | Pangkalan Gas LPG 3 KG</title>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -29,7 +29,7 @@
 					<div class="left">
 						<div class="content">
 							<div class="header">
-								<div class="logo text-center"><img src="{{ asset('assets/img/LogoTkSembako.png') }}" class="login-logo"></div>
+								<div class="logo text-center"><img src="{{ asset('assets/img/logo_gas.png') }}" class="login-logo"></div>
 								<p class="lead">Login Admin</p>
 							</div>
 							<form class="form-auth-small" method="POST" action="/login-attempt">

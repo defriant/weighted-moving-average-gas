@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Toko Sembako Bu Dito</title>
+    <title>Pangkalan Gas LPG 3 KG</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -37,7 +37,7 @@
         <!-- NAVBAR -->
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="brand">
-                <a href="index.html"><img src="{{ asset('assets/img/LogoTkSembako.png') }}" class="img-responsive"></a>
+                <a href="index.html"><img src="{{ asset('assets/img/logo_gas.png') }}" class="img-responsive"></a>
             </div>
             <div class="container-fluid">
                 <div class="navbar-btn">
