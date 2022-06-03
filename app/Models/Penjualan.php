@@ -13,9 +13,8 @@ class Penjualan extends Model
     protected $fillable = [
         'id',
         'periode',
-        'stok_awal',
-        'stok_akhir',
-        'terjual',
-        'pendapatan'
+        'terjual'
     ];
+
+    public $incrementing = false;
 }

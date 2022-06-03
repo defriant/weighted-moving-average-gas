@@ -4,18 +4,19 @@
     <div class="col-md-6">
         <div class="panel panel-headline">
             <div class="panel-heading">
-                <h3 class="panel-title">Prediksi Stok Akhir</h3>
+                <h3 class="panel-title">Prediksi Stok</h3>
             </div>
             <div class="panel-body">
                 <p>Periode Data Penjualan Terakhir</p>
                 <input type="text" class="form-control" style="width: 50%;" value="{{ date('F Y', strtotime($dataPenjualanTerakhir->periode)) }}" disabled>
                 <br>
                 <p>Prediksi Untuk Periode</p>
-                <select id="prediksiPeriode" class="form-control" style="width: 50%">
+                <input type="text" class="form-control" id="prediksiPeriode" style="width: 50%;" value="{{ date('F Y', strtotime($prediksiPeriode)) }}" disabled>
+                {{-- <select id="prediksiPeriode" class="form-control" style="width: 50%">
                     @foreach ($prediksiPeriode as $p)
                         <option value="{{ $p }}">{{ $p }}</option>
                     @endforeach
-                </select>
+                </select> --}}
                 <br>
             </div>
             <div class="panel-footer">

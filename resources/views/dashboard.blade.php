@@ -17,14 +17,14 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="metric">
-                    <span class="icon"><i class="fas fa-exchange"></i></span>
+                    <span class="icon"><i class="fas fa-sack-dollar"></i></span>
                     <p>
                         <span class="number" style="margin-bottom: .5rem" id="terjual">{{ number_format($terjual) }}</span>
                         <span class="title" style="font-size: 1.4rem;">Produk Terjual</span>
                     </p>
                 </div>
             </div>
-            <div class="col-md-4">
+            {{-- <div class="col-md-4">
                 <div class="metric">
                     <span class="icon"><i class="fas fa-sack-dollar"></i></span>
                     <p>
@@ -32,7 +32,7 @@
                         <span class="title" style="font-size: 1.4rem;">Total Pendapatan</span>
                     </p>
                 </div>
-            </div>
+            </div> --}}
         </div>
         <br>
         <div class="row">

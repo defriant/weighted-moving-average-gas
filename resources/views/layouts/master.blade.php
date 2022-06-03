@@ -67,10 +67,13 @@
                             <a href="/dashboard" class="{{ Request::is('dashboard') ? 'active' : '' }}"><i class="lnr lnr-home"></i> <span>Dashboard</span></a>
                         </li>
                         <li>
-                            <a href="/input-data-penjualan" class="{{ Request::is('input-data-penjualan') ? 'active' : '' }}"><i class="lnr lnr-home"></i> <span>Input Data Penjualan</span></a>
+                            <a href="/input-transaksi" class="{{ Request::is('input-transaksi') ? 'active' : '' }}"><i class="fal fa-cash-register"></i> <span>Input Transaksi</span></a>
                         </li>
                         <li>
-                            <a href="/prediksi-stok-akhir" class="{{ Request::is('prediksi-stok-akhir') ? 'active' : '' }}"><i class="fal fa-chart-line"></i> <span>Prediksi Stok Akhir</span></a>
+                            <a href="/laporan-bulanan" class="{{ Request::is('laporan-bulanan') ? 'active' : '' }}"><i class="fal fa-file-chart-line"></i> <span>Laporan Bulanan</span></a>
+                        </li>
+                        <li>
+                            <a href="/prediksi-stok" class="{{ Request::is('prediksi-stok') ? 'active' : '' }}"><i class="fal fa-chart-line"></i> <span>Prediksi Stok (WMA)</span></a>
                         </li>
                     </ul>
                 </nav>
@@ -107,8 +110,11 @@
     <script src="{{ asset('assets/vendor/toastr/toastr.min.js') }}"></script>
     <script src="{{ asset('assets/scripts/klorofil-common.js') }}"></script>
     <script src="{{ asset('assets/scripts/main.js') }}"></script>
-    @if (Request::is('input-data-penjualan'))
+    @if (Request::is('input-transaksi'))
         <script src="{{ asset('assets/scripts/transaksi.js') }}"></script>
+    @endif
+    @if (Request::is('laporan-bulanan'))
+        <script src="{{ asset('assets/scripts/laporan-bulanan.js') }}"></script>
     @endif
     @yield('scripts')
 </body>

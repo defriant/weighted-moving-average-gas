@@ -16,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/process-wma', [WebController::class, 'processWma']);
+Route::post('/chart-penjualan', [WebController::class, 'chart_penjualan']);

@@ -92,19 +92,42 @@ if (location.pathname == '/dashboard') {
 function chartPendapatan() {
     let mychart
     $.ajax({
-        type:'get',
-        url:'/data-pendapatan',
+        type:'post',
+        url:'/chart-penjualan',
+        data: {
+            "tahun": $('.change-periode.active').attr('data-periode')
+        },
         success:function(response){
-            console.log(response)
             let ctx = document.getElementById("data-penjualan-chart").getContext('2d')
+            let labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+            let chartData = []
+
+            labels.forEach(month => {
+                let check = response.find(p => p.periode === month)
+                if (check) {
+                    chartData.push(check.terjual)
+                } else {
+                    chartData.push(null)
+                }
+            })
+
+            let highest = 0
+            response.forEach(data => {
+                if (data.terjual > highest) {
+                    highest = data.terjual
+                }
+            })
+
+            highest = highest + (highest / 4)
+
             mychart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    labels: labels,
                     datasets: [
                         {
-                            label: 'Pendapatan',
-                            data: response.pendapatan,
+                            label: 'Terjual',
+                            data: chartData,
                             borderColor: '#4dc3ff',
                             backgroundColor: '#80d4ff'
                         }
@@ -114,6 +137,12 @@ function chartPendapatan() {
                     plugins: {
                         legend: {
                             display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            suggestedMin: 500,
+                            suggestedMax: highest
                         }
                     }
                 }
@@ -132,17 +161,36 @@ function chartPendapatan() {
 
 function updateChartPendapatan(mychart, periode) {
     $.ajax({
-        type:'get',
-        url:'/data-pendapatan?tahun='+periode,
+        type:'post',
+        url:'/chart-penjualan',
+        data: {
+            "tahun": periode
+        },
         success:function(response){
-            $('#terjual').html(response.terjual)
-            $('#totalPendapatan').html(response.totalPendapatan)
+            let terjual = 0
+            response.forEach(data => {
+                terjual += data.terjual
+            })
+            $('#terjual').html(terjual.toLocaleString('en-US'))
+
+            let labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+            let chartData = []
+
+            labels.forEach(month => {
+                let check = response.find(p => p.periode === month)
+                if (check) {
+                    chartData.push(check.terjual)
+                } else {
+                    chartData.push(null)
+                }
+            })
+
             mychart.data = {
-                labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                labels: labels,
                 datasets: [
                     {
-                        label: 'Pendapatan',
-                        data: response.pendapatan,
+                        label: 'Terjual',
+                        data: chartData,
                         borderColor: '#4dc3ff',
                         backgroundColor: '#80d4ff'
                     }
@@ -241,50 +289,49 @@ $('#btn-input-data').on('click', function () {
     }
 })
 
-$('#btn-edit-data').on('click', function(){
-    if ($('#editStokAwal').val().length == 0) {
-        alert('Masukkan Stok Awal')
-    } else if ($('#editStokAkhir').val().length == 0) {
-        alert('Masukan Stok Akhir')
-    } else if ($('#editTerjual').val().length == 0) {
-        alert('Masukan Barang Terjual')
-    } else if ($('#editPendapatan').val().length == 0) {
-        alert('Masukan Pendapatan')
-    } else {
-        $('#btn-edit-data').attr('disabled', 'disabled')
-        $.ajax({
-            type: 'post',
-            url: '/edit-data-penjualan',
-            data: {
-                id: $('#editId').val(),
-                stokAwal: $('#editStokAwal').val(),
-                stokAkhir: $('#editStokAkhir').val(),
-                terjual: $('#editTerjual').val(),
-                pendapatan: $('#editPendapatan').val()
-            },
-            success: function (response) {
-                if (response == "success") {
-                    toastr.option = {
-                        "timeout": "5000"
-                    }
-                    toastr["success"]("Data penjualan bulan " + $('#editMonthYear').val() + " berhasil di edit")
-                    $('#btn-edit-data').removeAttr('disabled')
-                    $('#modalEditData').modal('toggle')
-                    $('#table-penjualan').DataTable().ajax.reload()
-                }else{
-                    toastr.option = {
-                        "timeout": "5000"
-                    }
-                    toastr["error"]("Gagal merubah data penjualan periode " + $('#editMonthYear').val())
-                }
-            }
-        })
-    }
-})
+// $('#btn-edit-data').on('click', function(){
+//     if ($('#editStokAwal').val().length == 0) {
+//         alert('Masukkan Stok Awal')
+//     } else if ($('#editStokAkhir').val().length == 0) {
+//         alert('Masukan Stok Akhir')
+//     } else if ($('#editTerjual').val().length == 0) {
+//         alert('Masukan Barang Terjual')
+//     } else if ($('#editPendapatan').val().length == 0) {
+//         alert('Masukan Pendapatan')
+//     } else {
+//         $('#btn-edit-data').attr('disabled', 'disabled')
+//         $.ajax({
+//             type: 'post',
+//             url: '/edit-data-penjualan',
+//             data: {
+//                 id: $('#editId').val(),
+//                 stokAwal: $('#editStokAwal').val(),
+//                 stokAkhir: $('#editStokAkhir').val(),
+//                 terjual: $('#editTerjual').val(),
+//                 pendapatan: $('#editPendapatan').val()
+//             },
+//             success: function (response) {
+//                 if (response == "success") {
+//                     toastr.option = {
+//                         "timeout": "5000"
+//                     }
+//                     toastr["success"]("Data penjualan bulan " + $('#editMonthYear').val() + " berhasil di edit")
+//                     $('#btn-edit-data').removeAttr('disabled')
+//                     $('#modalEditData').modal('toggle')
+//                     $('#table-penjualan').DataTable().ajax.reload()
+//                 }else{
+//                     toastr.option = {
+//                         "timeout": "5000"
+//                     }
+//                     toastr["error"]("Gagal merubah data penjualan periode " + $('#editMonthYear').val())
+//                 }
+//             }
+//         })
+//     }
+// })
 
 $('#btn-prediksi-data').on('click', function () {
     let wmaPeriode = $('#prediksiPeriode').val()
-    $('#prediksiPeriode').attr('disabled', 'disabled')
     $('#btn-prediksi-data').attr('disabled', 'disabled')
     $('#hasil-prediksi').empty()
     $('#hasil-prediksi').append(`<div class="panel panel-headline" id="panel-prediksi-loading">
@@ -294,7 +341,6 @@ $('#btn-prediksi-data').on('click', function () {
                                     </div>
                                 </div>`)
     $('#hasil-prediksi').append(`<div class="panel panel-headline" id="panel-head-prediksi-terjual" style="display: none;"></div>`)
-    $('#hasil-prediksi').append(`<div class="panel panel-headline" id="panel-head-prediksi-pendapatan" style="display: none;"></div>`)
     setTimeout(() => {
         wmaTerjual(wmaPeriode)
     }, 1000);
@@ -309,20 +355,18 @@ function wmaTerjual(wmaPeriode) {
         },
         success: function (response) {
             $('#panel-head-prediksi-terjual').empty()
-            $('#panel-head-prediksi-terjual').append(`<div class="panel-heading">
-                                                            <h3 class="panel-title">Prediksi Stok Akhir</h3>
-                                                        </div>
+            $('#panel-head-prediksi-terjual').append(`<br>
                                                         <div class="panel-body" id="panel-body-prediksi-terjual">
                                                         </div>`)
 
-            $('#panel-body-prediksi-terjual').append(`<p>Tanggal stok habis 3 bulan terakhir :</p>
+            $('#panel-body-prediksi-terjual').append(`<p>Penjualan 3 bulan terakhir :</p>
                                                             <div class="row">
                                                                 <div class="col-md-12">
                                                                     <table class="table">
                                                                         <thead>
                                                                             <tr>
                                                                                 <th>Periode</th>
-                                                                                <th>Stok Akhir</th>
+                                                                                <th>Terjual</th>
                                                                                 <th>WMA</th>
                                                                                 <th>Error</th>
                                                                                 <th>MAD</th>
@@ -341,7 +385,7 @@ function wmaTerjual(wmaPeriode) {
                 if (v.type == 'real') {
                     $('#data-n-terjual').append(`<tr>
                                             <td>${v.periode}</td>
-                                            <td>${v.tgl_akhir}</td>
+                                            <td>${v.terjual}</td>
                                             <td>${v.wma}</td>
                                             <td>${v.error}</td>
                                             <td>${v.mad}</td>
@@ -382,7 +426,7 @@ function wmaTerjual(wmaPeriode) {
                                                         <thead>
                                                             <tr>
                                                                 <th style="width: 50%">Periode</th>
-                                                                <th style="width: 50%">Prediksi Stok Akhir</th>
+                                                                <th style="width: 50%">Prediksi stok yang harus disediakan</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="hasil-prediksi-terjual">
@@ -393,13 +437,12 @@ function wmaTerjual(wmaPeriode) {
                 if (v.type == 'wma') {
                     $('#hasil-prediksi-terjual').append(`<tr>
                                                                 <td>${v.periode}</td>
-                                                                <td>${v.tgl_akhir}</td>
+                                                                <td>${v.terjual}</td>
                                                             </tr>`)
                 }
             })
 
             $('#btn-prediksi-data').removeAttr('disabled')
-            $('#prediksiPeriode').removeAttr('disabled')
             $('#panel-prediksi-loading').remove()
             $('#panel-head-prediksi-terjual').show()
             $('#panel-head-prediksi-pendapatan').show()
