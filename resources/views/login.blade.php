@@ -56,7 +56,7 @@
 						<div class="overlay"></div>
 						<div class="content text">
 							<h1 class="heading">Penerapan Metode Weighted Moving Average</h1>
-							<p>Toko Sembako Bu Dito</p>
+							<p>Pangkalan Gas LPG 3 KG</p>
 						</div>
 					</div>
 					<div class="clearfix"></div>
