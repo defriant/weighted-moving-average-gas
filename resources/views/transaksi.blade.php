@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p>Tanggal</p>
-                        <input type="text" value="{{ date('d F Y') }}" id="transaksi-tanggal" class="form-control date-picker" readonly>
+                        <input type="text" value="{{ date('d F Y') }}" id="transaksi-tanggal" class="form-control date-picker max-current-date" readonly>
                     </div>
                     <div class="col-md-6">
                         <p>Terjual</p>
@@ -60,6 +60,21 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="btn-edit-data">simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDeleteData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h4 class="text-center" style="margin-top: 3rem" id="delete-warning-message"></h4>
+                <input type="hidden" id="delete-id">
+                <div style="margin-top: 5rem; text-align: center">
+                    <button type="button" class="btn btn-danger" id="btn-delete-data">Hapus</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                </div>
             </div>
         </div>
     </div>

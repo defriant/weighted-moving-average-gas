@@ -110,6 +110,9 @@
     <script src="{{ asset('assets/vendor/toastr/toastr.min.js') }}"></script>
     <script src="{{ asset('assets/scripts/klorofil-common.js') }}"></script>
     <script src="{{ asset('assets/scripts/main.js') }}"></script>
+    @if (Request::is('dashboard'))
+    <script src="{{ asset('assets/scripts/dashboard.js') }}"></script>
+    @endif
     @if (Request::is('input-transaksi'))
         <script src="{{ asset('assets/scripts/transaksi.js') }}"></script>
     @endif

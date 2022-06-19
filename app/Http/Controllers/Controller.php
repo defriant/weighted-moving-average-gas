@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use DateTime;
+use DatePeriod;
+use DateInterval;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Controller extends BaseController
 {
@@ -47,5 +50,20 @@ class Controller extends BaseController
             }
             return $result;
         }
+    }
+
+    public function getDatesFromRange($start, $end, $format = 'Y-m-d')
+    {
+        $array = array();
+        $interval = new DateInterval('P1D');
+        $realEnd = new DateTime($end);
+        $realEnd->add($interval);
+        $period = new DatePeriod(new DateTime($start), $interval, $realEnd);
+
+        foreach ($period as $date) {
+            $array[] = $date->format($format);
+        }
+
+        return $array;
     }
 }

@@ -83,6 +83,10 @@
     background: #ffaa00;
 }
 
+.btn-table-action.delete {
+    background: #c91d1d;
+}
+
 .date-picker {
     background-color: transparent !important;
 }
@@ -98,4 +102,8 @@
 
 .text-note.red {
     color: red;
+}
+
+.month-picker:read-only {
+    background-color: #fcfcfc;
 }

@@ -3,6 +3,12 @@ $('.date-picker').datetimepicker({
     format: 'd F Y'
 })
 
+$('.date-picker.max-current-date').datetimepicker({
+    timepicker: false,
+    maxDate: "today",
+    format: 'd F Y'
+})
+
 $('.date-picker.today').datetimepicker({
     timepicker: false,
     minDate: 'today',
@@ -84,121 +90,9 @@ class requestData {
 const ajaxRequest = new requestData()
 
 if (location.pathname == '/dashboard') {
-    chartPendapatan()
+    // chartPendapatan()
 }else if(location.pathname == '/kelola-data-penjualan'){
     dataPenjualan()
-}
-
-function chartPendapatan() {
-    let mychart
-    $.ajax({
-        type:'post',
-        url:'/chart-penjualan',
-        data: {
-            "tahun": $('.change-periode.active').attr('data-periode')
-        },
-        success:function(response){
-            let ctx = document.getElementById("data-penjualan-chart").getContext('2d')
-            let labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-            let chartData = []
-
-            labels.forEach(month => {
-                let check = response.find(p => p.periode === month)
-                if (check) {
-                    chartData.push(check.terjual)
-                } else {
-                    chartData.push(null)
-                }
-            })
-
-            let highest = 0
-            response.forEach(data => {
-                if (data.terjual > highest) {
-                    highest = data.terjual
-                }
-            })
-
-            highest = highest + (highest / 4)
-
-            mychart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Terjual',
-                            data: chartData,
-                            borderColor: '#4dc3ff',
-                            backgroundColor: '#80d4ff'
-                        }
-                    ]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            suggestedMin: 500,
-                            suggestedMax: highest
-                        }
-                    }
-                }
-            });
-        }
-    })
-
-    
-    $('.change-periode').on('click', function(){
-        $('.change-periode').removeClass('active')
-        $(this).addClass('active')
-        let periode = $(this).data('periode')
-        updateChartPendapatan(mychart, periode)
-    })
-}
-
-function updateChartPendapatan(mychart, periode) {
-    $.ajax({
-        type:'post',
-        url:'/chart-penjualan',
-        data: {
-            "tahun": periode
-        },
-        success:function(response){
-            let terjual = 0
-            response.forEach(data => {
-                terjual += data.terjual
-            })
-            $('#terjual').html(terjual.toLocaleString('en-US'))
-
-            let labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-            let chartData = []
-
-            labels.forEach(month => {
-                let check = response.find(p => p.periode === month)
-                if (check) {
-                    chartData.push(check.terjual)
-                } else {
-                    chartData.push(null)
-                }
-            })
-
-            mychart.data = {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Terjual',
-                        data: chartData,
-                        borderColor: '#4dc3ff',
-                        backgroundColor: '#80d4ff'
-                    }
-                ]
-            }
-            mychart.update()
-        }
-    })
 }
 
 // $('#monthyear').datepicker({
@@ -354,98 +248,110 @@ function wmaTerjual(wmaPeriode) {
             wmaPeriode: wmaPeriode
         },
         success: function (response) {
-            $('#panel-head-prediksi-terjual').empty()
-            $('#panel-head-prediksi-terjual').append(`<br>
-                                                        <div class="panel-body" id="panel-body-prediksi-terjual">
-                                                        </div>`)
-
-            $('#panel-body-prediksi-terjual').append(`<p>Penjualan 3 bulan terakhir :</p>
-                                                            <div class="row">
-                                                                <div class="col-md-12">
-                                                                    <table class="table">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Periode</th>
-                                                                                <th>Terjual</th>
-                                                                                <th>WMA</th>
-                                                                                <th>Error</th>
-                                                                                <th>MAD</th>
-                                                                                <th>MSE</th>
-                                                                                <th>MAPE</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody id="data-n-terjual">
-                                                                        </tbody>
-                                                                    </table>
+            if (response.response == "success") {
+                $('#panel-head-prediksi-terjual').empty()
+                $('#panel-head-prediksi-terjual').append(`<br>
+                                                            <div class="panel-body" id="panel-body-prediksi-terjual">
+                                                            </div>`)
+    
+                $('#panel-body-prediksi-terjual').append(`<p>Penjualan 3 bulan terakhir :</p>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <table class="table">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Periode</th>
+                                                                                    <th>Terjual</th>
+                                                                                    <th>WMA</th>
+                                                                                    <th>Error</th>
+                                                                                    <th>MAD</th>
+                                                                                    <th>MSE</th>
+                                                                                    <th>MAPE</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody id="data-n-terjual">
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
                                                                 </div>
+                                                                <hr>`)
+    
+                $.each(response.data, function (i, v) {
+                    if (v.type == 'real') {
+                        $('#data-n-terjual').append(`<tr>
+                                                <td>${v.periode}</td>
+                                                <td>${v.terjual}</td>
+                                                <td>${v.wma}</td>
+                                                <td>${v.error}</td>
+                                                <td>${v.mad}</td>
+                                                <td>${v.mse}</td>
+                                                <td>${v.mape} %</td>
+                                            </tr>`)
+                    }
+                })
+    
+                $('#panel-body-prediksi-terjual').append(`<div class="row">
+                                                            <div class="col-md-6 text-right">
+                                                                <p>Mean Absolute Deviation (MAD) :</p>
                                                             </div>
-                                                            <hr>`)
-
-            $.each(response.data, function (i, v) {
-                if (v.type == 'real') {
-                    $('#data-n-terjual').append(`<tr>
-                                            <td>${v.periode}</td>
-                                            <td>${v.terjual}</td>
-                                            <td>${v.wma}</td>
-                                            <td>${v.error}</td>
-                                            <td>${v.mad}</td>
-                                            <td>${v.mse}</td>
-                                            <td>${v.mape} %</td>
-                                        </tr>`)
-                }
-            })
-
-            $('#panel-body-prediksi-terjual').append(`<div class="row">
-                                                        <div class="col-md-6 text-right">
-                                                            <p>Mean Absolute Deviation (MAD) :</p>
+                                                            <div class="col-md-6">
+                                                                <p>${response.mad}</p>
+                                                            </div>
+                                                        </div>`)
+                $('#panel-body-prediksi-terjual').append(`<div class="row">
+                                                            <div class="col-md-6 text-right">
+                                                                <p>Mean Squared Error (MSE) :</p>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <p>${response.mse}</p>
+                                                            </div>
+                                                        </div>`)
+                $('#panel-body-prediksi-terjual').append(`<div class="row">
+                                                            <div class="col-md-6 text-right">
+                                                                <p>Mean Absolute Percent Error (MAPE) :</p>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <p>${response.mape} %</p>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-md-6">
-                                                            <p>${response.mad}</p>
-                                                        </div>
-                                                    </div>`)
-            $('#panel-body-prediksi-terjual').append(`<div class="row">
-                                                        <div class="col-md-6 text-right">
-                                                            <p>Mean Squared Error (MSE) :</p>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <p>${response.mse}</p>
-                                                        </div>
-                                                    </div>`)
-            $('#panel-body-prediksi-terjual').append(`<div class="row">
-                                                        <div class="col-md-6 text-right">
-                                                            <p>Mean Absolute Percent Error (MAPE) :</p>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <p>${response.mape} %</p>
-                                                        </div>
-                                                    </div>
-                                                    <hr>`)
-
-            $('#panel-body-prediksi-terjual').append(`<p>Hasil Prediksi :</p>
-                                                    <table class="table table-striped">
-                                                        <thead>
-                                                            <tr>
-                                                                <th style="width: 50%">Periode</th>
-                                                                <th style="width: 50%">Prediksi stok yang harus disediakan</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="hasil-prediksi-terjual">
-                                                        </tbody>
-                                                    </table>`)
-
-            $.each(response.data, function (i, v) {
-                if (v.type == 'wma') {
-                    $('#hasil-prediksi-terjual').append(`<tr>
-                                                                <td>${v.periode}</td>
-                                                                <td>${v.terjual}</td>
-                                                            </tr>`)
-                }
-            })
-
-            $('#btn-prediksi-data').removeAttr('disabled')
-            $('#panel-prediksi-loading').remove()
-            $('#panel-head-prediksi-terjual').show()
-            $('#panel-head-prediksi-pendapatan').show()
+                                                        <hr>`)
+    
+                $('#panel-body-prediksi-terjual').append(`<p>Hasil Prediksi :</p>
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style="width: 50%">Periode</th>
+                                                                    <th style="width: 50%">Prediksi stok yang harus disediakan</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="hasil-prediksi-terjual">
+                                                            </tbody>
+                                                        </table>`)
+    
+                $.each(response.data, function (i, v) {
+                    if (v.type == 'wma') {
+                        $('#hasil-prediksi-terjual').append(`<tr>
+                                                                    <td>${v.periode}</td>
+                                                                    <td>${v.terjual}</td>
+                                                                </tr>`)
+                    }
+                })
+    
+                $('#btn-prediksi-data').removeAttr('disabled')
+                $('#panel-prediksi-loading').remove()
+                $('#panel-head-prediksi-terjual').show()
+                $('#panel-head-prediksi-pendapatan').show()
+            } else if (response.response == "failed") {
+                $('#panel-head-prediksi-terjual').empty()
+                $('#panel-head-prediksi-terjual').append(`<div class="loader">
+                                                                <i class="fas fa-ban" style="font-size: 5rem; opacity: .5"></i>
+                                                                <h5 style="margin-top: 2.5rem; opacity: .75">${response.message}</h5>
+                                                            </div>`)
+                $('#btn-prediksi-data').removeAttr('disabled')
+                $('#panel-prediksi-loading').remove()
+                $('#panel-head-prediksi-terjual').show()
+                $('#panel-head-prediksi-pendapatan').show()
+            }
         }
     })
 }

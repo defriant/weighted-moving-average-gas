@@ -76,6 +76,40 @@ class WebController extends Controller
         return response()->json($chartData);
     }
 
+    public function chart_penjualan_harian(Request $request)
+    {
+        $from = date('Y-m', strtotime($request->periode)) . "-" . "01";
+        $from = date('Y-m-d', strtotime($from));
+        $to = date('Y-m-d', strtotime('+1 month', strtotime($from)));
+
+        $date = $this->getDatesFromRange($from, $to);
+        unset($date[count($date) - 1]);
+        $chartData = [];
+
+        $exist = false;
+        foreach ($date as $d) {
+            $transaksi = Penjualan::where('periode', $d)->first();
+            if ($transaksi) {
+                $exist = true;
+                $chartData[] = [
+                    "tanggal" => date('d', strtotime($d)),
+                    "terjual" => $transaksi->terjual
+                ];
+            } else {
+                $chartData[] = [
+                    "tanggal" => date('d', strtotime($d)),
+                    "terjual" => ($exist) ? 0 : null
+                ];
+            }
+        }
+
+        return response()->json([
+            "response" => "success",
+            "periode" => $request->periode,
+            "chart_data" => $chartData,
+        ]);
+    }
+
     public function transaksi_detail(Request $request)
     {
         $check = Penjualan::where('periode', date('Y-m-d', strtotime($request->tanggal)))->first();
@@ -147,6 +181,17 @@ class WebController extends Controller
         ]);
     }
 
+    public function transaksi_delete($id)
+    {
+        $transaksi = Penjualan::find($id);
+        $message = "Transaksi tanggal $transaksi->periode berhasil dihapus";
+        $transaksi->delete();
+        return response()->json([
+            "response" => "success",
+            "message" => $message
+        ]);
+    }
+
     public function laporan_bulanan()
     {
         $penjualan = Penjualan::orderBy('periode')->get();
@@ -198,18 +243,41 @@ class WebController extends Controller
             }
         }
 
-        for ($i = 3; $i >= 1; $i--) {
-            $terjual = 0;
-            $penjualan = Penjualan::whereYear('periode', date('Y', strtotime($getPeriode[count($getPeriode) - $i])))
-                ->whereMonth('periode', date('m', strtotime($getPeriode[count($getPeriode) - $i])))->get();
-            foreach ($penjualan as $p) {
-                $terjual += $p->terjual;
+        $target_key = array_search($wmaTo, $getPeriode);
+        if ($target_key) {
+            if ($target_key < 3) {
+                return response()->json([
+                    "response" => "failed",
+                    "message" => "Gagal memproses prediksi karena tidak dapat menemukan 3 bulan data penjualan terakhir !"
+                ]);
             }
+            for ($i = 3; $i >= 1; $i--) {
+                $terjual = 0;
+                $penjualan = Penjualan::whereYear('periode', date('Y', strtotime($getPeriode[$target_key - $i])))
+                    ->whereMonth('periode', date('m', strtotime($getPeriode[$target_key - $i])))->get();
+                foreach ($penjualan as $p) {
+                    $terjual += $p->terjual;
+                }
 
-            $dataPenjualanTerakhir[] = [
-                "periode" => $getPeriode[count($getPeriode) - $i],
-                "terjual" => $terjual
-            ];
+                $dataPenjualanTerakhir[] = [
+                    "periode" => $getPeriode[$target_key - $i],
+                    "terjual" => $terjual
+                ];
+            }
+        } else {
+            for ($i = 3; $i >= 1; $i--) {
+                $terjual = 0;
+                $penjualan = Penjualan::whereYear('periode', date('Y', strtotime($getPeriode[count($getPeriode) - $i])))
+                    ->whereMonth('periode', date('m', strtotime($getPeriode[count($getPeriode) - $i])))->get();
+                foreach ($penjualan as $p) {
+                    $terjual += $p->terjual;
+                }
+
+                $dataPenjualanTerakhir[] = [
+                    "periode" => $getPeriode[count($getPeriode) - $i],
+                    "terjual" => $terjual
+                ];
+            }
         }
 
         $predict = [];
@@ -270,24 +338,32 @@ class WebController extends Controller
         $predict["mse"] = intval($predict["mse"] / count($predict["data"]));
         $predict["mape"] = number_format((float)$predict["mape"] / count($predict["data"]), 2, '.', '');
 
-        $loop = 1;
-        for ($i = 0; $i < $loop; $i++) {
-            $periode = Penjualan::orderBy('periode', 'DESC')->first();
-            $periode = date('Y-m', strtotime('+' . $loop . ' months', strtotime(date('Y-m', strtotime($periode->periode)))));
-            if ($periode == $wmaTo) {
-                $predict["data"][] = [
-                    "type" => "wma",
-                    "periode" => $periode,
-                    "terjual" => null
-                ];
-                break;
-            } else {
-                $predict["data"][] = [
-                    "type" => "wma",
-                    "periode" => $periode,
-                    "terjual" => null
-                ];
-                $loop = $loop + 1;
+        if ($target_key) {
+            $predict["data"][] = [
+                "type" => "wma",
+                "periode" => $getPeriode[$target_key],
+                "terjual" => null
+            ];
+        } else {
+            $loop = 1;
+            for ($i = 0; $i < $loop; $i++) {
+                $periode = Penjualan::orderBy('periode', 'DESC')->first();
+                $periode = date('Y-m', strtotime('+' . $loop . ' months', strtotime(date('Y-m', strtotime($periode->periode)))));
+                if ($periode == $wmaTo) {
+                    $predict["data"][] = [
+                        "type" => "wma",
+                        "periode" => $periode,
+                        "terjual" => null
+                    ];
+                    break;
+                } else {
+                    $predict["data"][] = [
+                        "type" => "wma",
+                        "periode" => $periode,
+                        "terjual" => null
+                    ];
+                    $loop = $loop + 1;
+                }
             }
         }
 
@@ -315,6 +391,8 @@ class WebController extends Controller
 
         $predict["mad"] = number_format($predict["mad"]);
         $predict["mse"] = number_format($predict["mse"]);
+        $predict["response"] = "success";
+        $predict["message"] = "Berhasil membuat prediksi";
 
         return response()->json($predict);
     }

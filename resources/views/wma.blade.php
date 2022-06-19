@@ -11,7 +11,7 @@
                 <input type="text" class="form-control" style="width: 50%;" value="{{ date('F Y', strtotime($dataPenjualanTerakhir->periode)) }}" disabled>
                 <br>
                 <p>Prediksi Untuk Periode</p>
-                <input type="text" class="form-control" id="prediksiPeriode" style="width: 50%;" value="{{ date('F Y', strtotime($prediksiPeriode)) }}" disabled>
+                <input type="text" class="form-control month-picker" id="prediksiPeriode" style="width: 50%;" value="{{ date('F Y', strtotime($prediksiPeriode)) }}" readonly>
                 {{-- <select id="prediksiPeriode" class="form-control" style="width: 50%">
                     @foreach ($prediksiPeriode as $p)
                         <option value="{{ $p }}">{{ $p }}</option>

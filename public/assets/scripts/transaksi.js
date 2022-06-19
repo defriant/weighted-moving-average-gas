@@ -32,6 +32,12 @@ function getTransactionDetail() {
                                                 data-terjual="${v.terjual}">
                                                 <i class="fas fa-pen"></i>
                                             </button>
+                                            &nbsp;
+                                            <button class="btn-table-action delete" data-toggle="modal" data-target="#modalDeleteData"
+                                                data-id="${v.id}"
+                                                data-tanggal="${v.tanggal}">
+                                                <i class="far fa-trash-alt"></i>
+                                            </button>
                                         </td>
                                     </tr>`
             })
@@ -41,7 +47,7 @@ function getTransactionDetail() {
                                 <tr>
                                     <th>Tanggal</th>
                                     <th>Terjual</th>
-                                    <th style="width: 15%"></th>
+                                    <th style="width: 25%"></th>
                                 </tr>
                             </thead>
                             <tbody id="data-transaksi">
@@ -61,7 +67,7 @@ function getTransactionDetail() {
                                     <div class="panel-body">
                                         ${tableHtml}
                                     </div>`)
-        btnUpdateListener()
+        btnActionListener()
     })
 }
 
@@ -107,12 +113,18 @@ function submitTransaksi() {
     })
 }
 
-function btnUpdateListener() {
+function btnActionListener() {
     $('.btn-table-action.edit').unbind('click')
     $('.btn-table-action.edit').on('click', function(){
         $('#update-transaksi-id').val($(this).data('id'))
         $('#update-transaksi-tanggal').val($(this).data('tanggal'))
         $('#update-transaksi-terjual').val($(this).data('terjual'))
+    })
+
+    $('.btn-table-action.delete').unbind('click')
+    $('.btn-table-action.delete').on('click', function(){
+        $('#delete-id').val($(this).data('id'))
+        $('#delete-warning-message').html(`Hapus transaksi ${$(this).data('tanggal')} ?`)
     })
 }
 
@@ -138,4 +150,19 @@ $('#btn-edit-data').on('click', function(){
             toastr["success"](res.message)
         })
     }
+})
+
+$('#btn-delete-data').on('click', function(){
+    $('#btn-delete-data').attr('disabled', true)
+    ajaxRequest.get({
+        "url": `/transaksi/delete/${$('#delete-id').val()}`
+    }).then(res => {
+        getTransactionDetail()
+        $('#modalDeleteData').modal('hide')
+        $('#btn-delete-data').removeAttr('disabled')
+        toastr.option = {
+            "timeout": "5000"
+        }
+        toastr["success"](res.message)
+    })
 })

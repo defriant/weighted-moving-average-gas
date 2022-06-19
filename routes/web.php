@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [WebController::class, 'dashboard']);
     Route::post('/chart-penjualan', [WebController::class, 'chart_penjualan']);
+    Route::post('/chart-penjualan/harian', [WebController::class, 'chart_penjualan_harian']);
 
     Route::get('/input-transaksi', function () {
         return view('transaksi');
@@ -33,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/transaksi/detail', [WebController::class, 'transaksi_detail']);
     Route::post('/transaksi/update', [WebController::class, 'transaksi_update']);
     Route::post('/transaksi/input', [WebController::class, 'transaksi_input']);
+    Route::get('/transaksi/delete/{id}', [WebController::class, 'transaksi_delete']);
 
     Route::get('/laporan-bulanan', function () {
         return view('laporan-bulanan');
