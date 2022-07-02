@@ -315,7 +315,7 @@ class WebController extends Controller
             }
 
             $n3 = 0;
-            $n3Period = date('Y-m', strtotime('-2 months', strtotime($pVal["periode"])));
+            $n3Period = date('Y-m', strtotime('-3 months', strtotime($pVal["periode"])));
             $n3penjualan = Penjualan::whereYear('periode', date('Y', strtotime($n3Period)))
                 ->whereMonth('periode', date('m', strtotime($n3Period)))->get();
             foreach ($n3penjualan as $p) {
