@@ -1,7 +1,9 @@
+let chartReal
+let chartPredict
+let chartCombined
 chartPendapatan()
 
 function chartPendapatan() {
-    let mychart
     $.ajax({
         type:'post',
         url:'/chart-penjualan',
@@ -9,55 +11,131 @@ function chartPendapatan() {
             "tahun": $('.change-periode.active').attr('data-periode')
         },
         success:function(response){
-            let ctx = document.getElementById("data-penjualan-chart").getContext('2d')
-            let labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-            let chartData = []
-
-            labels.forEach(month => {
-                let check = response.find(p => p.periode === month)
-                if (check) {
-                    chartData.push(check.terjual)
-                } else {
-                    chartData.push(null)
-                }
-            })
-
-            let highest = 0
-            response.forEach(data => {
-                if (data.terjual > highest) {
-                    highest = data.terjual
-                }
-            })
-
-            highest = highest + (highest / 4)
-
-            mychart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Terjual',
-                            data: chartData,
-                            borderColor: '#4dc3ff',
-                            backgroundColor: '#80d4ff'
-                        }
-                    ]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+            $('#chart-real-wrapper').html(`<canvas id="data-penjualan-chart" style="max-height: 350px;"></canvas>`)
+            $('#chart-predict-wrapper').html(`<canvas id="chart-predict" style="max-height: 350px;"></canvas>`)
+            $('#chart-combined-wrapper').html(`<canvas id="chart-combined" style="max-height: 350px;"></canvas>`)
+            
+            const createChart = () => {
+                let ctx = document.getElementById("data-penjualan-chart").getContext('2d')
+                let ctxPredict = document.getElementById("chart-predict").getContext('2d')
+                let ctxCombined = document.getElementById("chart-combined").getContext('2d')
+                let labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+                let chartData = []
+                let chartDataPredict = []
+                let highest
+    
+                labels.forEach(month => {
+                    let check = response.chartReal.find(p => p.periode === month)
+                    check ? chartData.push(check.terjual) : chartData.push(null)
+    
+                    let checkPredict = response.chartPredict.find(p => p.periode === month)
+                    checkPredict ? chartDataPredict.push(checkPredict.terjual) : chartDataPredict.push(null)
+                })
+    
+                highest = 0
+                response.chartReal.forEach(data => {
+                    if (data.terjual > highest) {
+                        highest = data.terjual
+                    }
+                })
+    
+                response.chartPredict.forEach(data => {
+                    if (data.terjual > highest) {
+                        highest = data.terjual
+                    }
+                })
+    
+                highest = highest + (highest / 4)
+    
+                chartReal = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Terjual',
+                                data: chartData,
+                                borderColor: '#4dc3ff',
+                                backgroundColor: '#80d4ff'
+                            }
+                        ]
                     },
-                    scales: {
-                        y: {
-                            suggestedMin: 500,
-                            suggestedMax: highest
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                suggestedMin: 500,
+                                suggestedMax: highest
+                            }
                         }
                     }
-                }
-            });
+                });
+    
+                chartPredict = new Chart(ctxPredict, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Terjual',
+                                data: chartDataPredict,
+                                borderColor: '#ff8080',
+                                backgroundColor: '#ffb3b3'
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                suggestedMin: 500,
+                                suggestedMax: highest
+                            }
+                        }
+                    }
+                });
+    
+                chartCombined = new Chart(ctxCombined, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Real',
+                                data: chartData,
+                                borderColor: '#4dc3ff',
+                                backgroundColor: '#80d4ff'
+                            },
+                            {
+                                label: 'Predict',
+                                data: chartDataPredict,
+                                borderColor: '#ff8080',
+                                backgroundColor: '#ffb3b3'
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                suggestedMin: 500,
+                                suggestedMax: highest
+                            }
+                        }
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                createChart()
+            }, 100);
         }
     })
 
@@ -66,11 +144,11 @@ function chartPendapatan() {
         $('.change-periode').removeClass('active')
         $(this).addClass('active')
         let periode = $(this).data('periode')
-        updateChartPendapatan(mychart, periode)
+        updateChartPendapatan(periode)
     })
 }
 
-function updateChartPendapatan(mychart, periode) {
+function updateChartPendapatan(periode) {
     $.ajax({
         type:'post',
         url:'/chart-penjualan',
@@ -79,24 +157,24 @@ function updateChartPendapatan(mychart, periode) {
         },
         success:function(response){
             let terjual = 0
-            response.forEach(data => {
+            response.chartReal.forEach(data => {
                 terjual += data.terjual
             })
             $('#terjual').html(terjual.toLocaleString('en-US'))
 
             let labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
             let chartData = []
+            let chartDataPredict = []
 
             labels.forEach(month => {
-                let check = response.find(p => p.periode === month)
-                if (check) {
-                    chartData.push(check.terjual)
-                } else {
-                    chartData.push(null)
-                }
+                let check = response.chartReal.find(p => p.periode === month)
+                check ? chartData.push(check.terjual) : chartData.push(null)
+
+                let checkPredict = response.chartPredict.find(p => p.periode === month)
+                checkPredict ? chartDataPredict.push(checkPredict.terjual) : chartDataPredict.push(null)
             })
 
-            mychart.data = {
+            chartReal.data = {
                 labels: labels,
                 datasets: [
                     {
@@ -107,7 +185,39 @@ function updateChartPendapatan(mychart, periode) {
                     }
                 ]
             }
-            mychart.update()
+            chartReal.update()
+
+            chartPredict.data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Terjual',
+                        data: chartDataPredict,
+                        borderColor: '#ff8080',
+                        backgroundColor: '#ffb3b3'
+                    }
+                ]
+            }
+            chartPredict.update()
+
+            chartCombined.data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Real',
+                        data: chartData,
+                        borderColor: '#4dc3ff',
+                        backgroundColor: '#80d4ff'
+                    },
+                    {
+                        label: 'Predict',
+                        data: chartDataPredict,
+                        borderColor: '#ff8080',
+                        backgroundColor: '#ffb3b3'
+                    }
+                ]
+            }
+            chartCombined.update()
         }
     })
 }
