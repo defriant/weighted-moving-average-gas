@@ -249,6 +249,49 @@ class WebController extends Controller
         return view('wma', compact('dataPenjualanTerakhir', 'prediksiPeriode'));
     }
 
+    public function wma_get_last_data(Request $request)
+    {
+        $wmaTo = date('Y-m', strtotime($request->periode));
+
+        $penjualan = Penjualan::orderBy('periode')->get();
+        $periode = [];
+        foreach ($penjualan as $p) {
+            $convertedPeriode = date('Y-m', strtotime($p->periode));
+            $check = array_search($convertedPeriode, $periode);
+            if ($check === false) {
+                $periode[] = $convertedPeriode;
+            }
+        }
+
+        $last_data_three_month = date('Y-m-d', strtotime('-3 month', strtotime($wmaTo)));
+        $last_data_one_month = date('Y-m-d', strtotime('-1 month', strtotime($wmaTo)));
+
+        if ($last_data_three_month < $periode[0]) {
+            return response()->json([
+                "valid" => false,
+                "last_data_three_month" => "Data 3 bulan terakhir tidak tersedia !"
+            ]);
+        } else {
+            if ($last_data_one_month >= $periode[count($periode) - 1]) {
+                return response()->json([
+                    "valid" => true,
+                    "last_data_three_month" => date('F Y', strtotime($periode[count($periode) - 1]))
+                ]);
+            } else {
+                return response()->json([
+                    "valid" => true,
+                    "last_data_three_month" => date('F Y', strtotime($last_data_one_month))
+                ]);
+            }
+        }
+
+        // $response = [
+        //     "last_data_three_month" => $last_data_three_month
+        // ];
+
+        // return response()->json($response);
+    }
+
     public function processWma(Request $request)
     {
         return response()->json($this->createWma($request->wmaPeriode));

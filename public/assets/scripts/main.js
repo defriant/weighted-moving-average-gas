@@ -28,6 +28,9 @@ $('.month-picker').datepicker({
     dateFormat: 'MM yy',
     onClose: function (dateText, inst) {
         $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+        if ($(this).attr('id') == "prediksiPeriode") {
+            getLastData($(this).val())
+        }
     }
 })
 
@@ -459,6 +462,22 @@ function wmaPendapatan(wmaPeriode) {
             $('#panel-prediksi-loading').remove()
             $('#panel-head-prediksi-terjual').show()
             $('#panel-head-prediksi-pendapatan').show()
+        }
+    })
+}
+
+function getLastData(periode) {
+    $('#btn-prediksi-data').attr('disabled', true)
+
+    ajaxRequest.post({
+        "url": "/wma/get-last-data",
+        "data": {
+            periode: periode
+        }
+    }).then(res => {
+        $('#lastData').val(res.last_data_three_month)
+        if (res.valid) {
+            $('#btn-prediksi-data').removeAttr('disabled')
         }
     })
 }

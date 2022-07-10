@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::get('/laporan-bulanan/get', [WebController::class, 'laporan_bulanan']);
 
+    Route::post('/wma/get-last-data', [WebController::class, 'wma_get_last_data']);
     Route::get('/prediksi-stok', [WebController::class, 'wma']);
     Route::post('/process-wma', [WebController::class, 'processWma']);
 });

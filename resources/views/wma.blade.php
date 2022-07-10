@@ -8,7 +8,7 @@
             </div>
             <div class="panel-body">
                 <p>Periode Data Penjualan Terakhir</p>
-                <input type="text" class="form-control" style="width: 50%;" value="{{ date('F Y', strtotime($dataPenjualanTerakhir->periode)) }}" disabled>
+                <input type="text" class="form-control" id="lastData" style="width: 75%;" value="{{ date('F Y', strtotime($dataPenjualanTerakhir->periode)) }}" disabled>
                 <br>
                 <p>Prediksi Untuk Periode</p>
                 <input type="text" class="form-control month-picker" id="prediksiPeriode" style="width: 50%;" value="{{ date('F Y', strtotime($prediksiPeriode)) }}" readonly>
